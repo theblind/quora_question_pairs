@@ -1,3 +1,4 @@
 datasets/*
+!datasets/get_start.sh
 *.pyc
 kaggle.py
