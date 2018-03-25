@@ -1,4 +1,5 @@
 import os
+import re
 
 import nltk
 import numpy as np
@@ -8,21 +9,24 @@ from keras.preprocessing.sequence import pad_sequences
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
-EMBEDDING_DIMENSION = 50
+EMBEDDING_DIMENSION = 100
 MAX_LENGTH = 150
 
 
-def tokenize(sent):
+def tokenize(sentence):
     """Transfer a sentence to tokens"""
-    tokens = nltk.word_tokenize(sent)
-    # stop_words = set(stopwords.words('english'))
-    punctuation = ['.', ',', '"', "'", '?', '!', ':', ';',
-                   '(', ')', '[', ']', '{', '}', '&', '!', '*', '@', '#', '$', '%']
-    stop_words = punctuation
-    porter = PorterStemmer()
-    tokens = [porter.stem(i.lower())
-              for i in tokens if i.lower() not in stop_words]
-    return tokens
+    try:
+        tokens = nltk.word_tokenize(sentence)
+        # stop_words = set(stopwords.words('english'))
+        punctuation = ['.', ',', '"', "'", '?', '!', ':', ';',
+                    '(', ')', '[', ']', '{', '}', '&', '!', '*', '@', '#', '$', '%']
+        stop_words = punctuation
+        porter = PorterStemmer()
+        tokens = [porter.stem(i.lower())
+                for i in tokens if i.lower() not in stop_words]
+        return tokens
+    except TypeError:
+        return []
 
 
 def tokenize_questions(questions):

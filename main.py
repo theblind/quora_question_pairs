@@ -3,7 +3,7 @@ import os
 import keras
 import numpy as np
 import pandas as pd
-from keras.layers import Concatenate, Dense, Dropout, Flatten, Merge, Reshape
+from keras.layers import Dense, Dropout, Flatten, Merge, Reshape, Bidirectional
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
@@ -27,8 +27,8 @@ def build_model(embedding_matrix, vocabulary_size):
                                     input_length=MAX_LENGTH,
                                     weights=[embedding_matrix],
                                     mask_zero=True))
-    question1_encoder.add(LSTM(HIDDEN_DIMENSION, return_sequences=True))
-    question1_encoder.add(Dropout(0.25))
+    question1_encoder.add(Bidirectional(LSTM(HIDDEN_DIMENSION, return_sequences=True)))
+    question1_encoder.add(Dropout(DROPOUT_RATE))
 
     # Encoder question2
     question2_encoder = Sequential()
@@ -37,8 +37,8 @@ def build_model(embedding_matrix, vocabulary_size):
                                     input_length=MAX_LENGTH,
                                     weights=[embedding_matrix],
                                     mask_zero=True))
-    question2_encoder.add(LSTM(HIDDEN_DIMENSION, return_sequences=True))
-    question2_encoder.add(Dropout(0.25))
+    question2_encoder.add(Bidirectional(LSTM(HIDDEN_DIMENSION, return_sequences=True)))
+    question2_encoder.add(Dropout(DROPOUT_RATE))
 
     # Add attention between question1 and question2
     attention = Sequential()
@@ -55,6 +55,7 @@ def build_model(embedding_matrix, vocabulary_size):
     model.add(LSTM(HIDDEN_DIMENSION))
     model.add(Dense(1, activation="sigmoid"))
 
+    # Compile the model
     model.compile(optimizer="adam",
                   loss="binary_crossentropy",
                   metrics=["accuracy"])
@@ -65,9 +66,9 @@ def main():
     # Read training and testing data
     dataset_path = "datasets"
     train_data_path = os.path.join(dataset_path, "train.csv")
-    train_data = pd.read_csv(train_data_path).head(100)
+    train_data = pd.read_csv(train_data_path)
     test_data_path = os.path.join(dataset_path, "test.csv")
-    test_data = pd.read_csv(test_data_path).head(100)
+    test_data = pd.read_csv(test_data_path)
 
     # Transfer questions to tokens
     train_data_question1 = data_processing.tokenize_questions(train_data.question1)
@@ -104,7 +105,7 @@ def main():
               epochs=NUM_EPOCHES)
 
     # Predict the result for test data
-    predicts = model.predict([test_data_question1, test_data_question2])
+    predicts = model.predict([test_data_question1, test_data_question2], batch_size=BATCH_SIZE)
     
     # Save the result
     submittion = pd.DataFrame()
