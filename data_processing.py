@@ -49,6 +49,7 @@ def build_dictionary(question_corpus):
 
 
 def train_word2vec(sentences, num_features=100, min_word_count=1, context=5):
+    """Train word2vec Model"""
     dataset_path = "datasets"
     model_path = os.path.join(dataset_path, "word2vec_embedding.data")
 
@@ -67,6 +68,7 @@ def train_word2vec(sentences, num_features=100, min_word_count=1, context=5):
 
 
 def load_glove(glove_path):
+    """Load pre-trained Glove embedding"""
     word_embeddings = {}
     with open(glove_path, encoding="utf-8") as f:
         for line in f:
